@@ -49,16 +49,46 @@ void main() {
       });
     });
 
-    test('reset sets timer to initialDuration', () {
+    test('reset sets timer to newDuration and newInitialDuration', () {
       fakeAsync((async) {
         final logic = EfficientCircularCountdownTimerLogic(duration: 5, initialDuration: 2);
         logic.start();
         async.elapse(const Duration(seconds: 2));
-        logic.reset();
-        expect(logic.currentSeconds, 2);
+        // Simulate a reset with a new duration and initialDuration
+        logic.reset(newDuration: 10, newInitialDuration: 4);
+        expect(logic.duration, 10);
+        expect(logic.currentSeconds, 4);
         expect(logic.isRunning, false);
         logic.dispose();
       });
+    });
+
+    testWidgets('controller.reset sets new duration and initialDuration in widget', (tester) async {
+      final controller = CountdownController();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: EfficientCircularCountdownTimer(
+            duration: 5,
+            initialDuration: 2,
+            controller: controller,
+            width: 100,
+            height: 100,
+            isTimerTextShown: true,
+          ),
+        ),
+      );
+      controller.start();
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pumpAndSettle();
+      // Now reset with new duration and initialDuration
+      controller.reset(newDuration: 8, newInitialDuration: 3);
+      await tester.pumpAndSettle();
+      expect(find.text('00:03'), findsOneWidget);
+      // Start and let it run to new duration
+      controller.start();
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+      expect(find.text('00:08'), findsOneWidget);
     });
   });
 

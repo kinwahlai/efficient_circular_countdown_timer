@@ -17,7 +17,7 @@ class CountdownController {
   VoidCallback? _pause;
   VoidCallback? _resume;
   VoidCallback? _restart;
-  VoidCallback? _reset;
+  void Function({int? newDuration, int? newInitialDuration})? _reset;
   String Function()? _getTime;
   ValueNotifier<bool>? isPaused;
   ValueNotifier<bool>? isStarted;
@@ -26,7 +26,7 @@ class CountdownController {
   void pause() => _pause?.call();
   void resume() => _resume?.call();
   void restart() => _restart?.call();
-  void reset() => _reset?.call();
+  void reset({int? newDuration, int? newInitialDuration}) => _reset?.call(newDuration: newDuration, newInitialDuration: newInitialDuration);
   String getTime() => _getTime?.call() ?? '';
 }
 
@@ -34,7 +34,7 @@ class CountdownController {
 ///
 /// Handles the countdown/count-up, timer state, and notifies listeners of time and running state changes.
 class EfficientCircularCountdownTimerLogic {
-  final int duration; // in seconds
+  int duration; // now mutable
   final int initialDuration; // in seconds
   final bool isReverse; // false = count up, true = count down
   final ValueNotifier<String> timeNotifier;
@@ -113,7 +113,23 @@ class EfficientCircularCountdownTimerLogic {
 
   void reset({int? newDuration, int? newInitialDuration}) {
     stop();
-    _currentSeconds = newInitialDuration ?? initialDuration;
+    if (newDuration != null) {
+      if (newDuration <= 0) {
+        throw EfficientCircularCountdownTimerException('duration must be > 0');
+      }
+      duration = newDuration;
+    }
+    if (newInitialDuration != null) {
+      if (newInitialDuration < 0) {
+        throw EfficientCircularCountdownTimerException('initialDuration must be >= 0');
+      }
+      if (newInitialDuration > duration) {
+        throw EfficientCircularCountdownTimerException('initialDuration must be <= duration');
+      }
+      _currentSeconds = newInitialDuration;
+    } else {
+      _currentSeconds = initialDuration;
+    }
     timeNotifier.value = _defaultFormatter(_currentSeconds);
   }
 
@@ -248,7 +264,7 @@ class _EfficientCircularCountdownTimerState extends State<EfficientCircularCount
     _controller!._pause = _pauseTimer;
     _controller!._resume = _resumeTimer;
     _controller!._restart = _restartTimer;
-    _controller!._reset = _resetTimer;
+    _controller!._reset = ({int? newDuration, int? newInitialDuration}) => _resetTimer(newDuration: newDuration, newInitialDuration: newInitialDuration);
     _controller!._getTime = () => _timerLogic.timeNotifier.value;
     _controller!.isPaused = ValueNotifier<bool>(_timerLogic.isPaused);
     _controller!.isStarted = ValueNotifier<bool>(_timerLogic.isRunning);
@@ -286,8 +302,10 @@ class _EfficientCircularCountdownTimerState extends State<EfficientCircularCount
     _startTimer();
   }
 
-  void _resetTimer() {
-    _timerLogic.reset();
+  void _resetTimer({int? newDuration, int? newInitialDuration}) {
+    setState(() {
+      _timerLogic.reset(newDuration: newDuration, newInitialDuration: newInitialDuration);
+    });
   }
 
   @override

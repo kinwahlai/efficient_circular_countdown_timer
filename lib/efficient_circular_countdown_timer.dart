@@ -1,6 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
+/// Exception thrown when invalid parameters are provided to EfficientCircularCountdownTimer.
+class EfficientCircularCountdownTimerException implements Exception {
+  final String message;
+  EfficientCircularCountdownTimerException(this.message);
+  @override
+  String toString() => 'EfficientCircularCountdownTimerException: $message';
+}
+
 /// A controller for programmatic control of the countdown timer.
 ///
 /// Use this to start, pause, resume, restart, or reset the timer from outside the widget.
@@ -41,15 +49,24 @@ class EfficientCircularCountdownTimerLogic {
     this.initialDuration = 0,
     this.isReverse = false,
     String Function(int seconds)? timeFormatter,
-  })  : assert(duration > 0),
-        assert(initialDuration >= 0 && initialDuration <= duration),
+  })  :
         _currentSeconds = initialDuration,
         timeNotifier = ValueNotifier<String>(
           timeFormatter != null
               ? timeFormatter(initialDuration)
               : _defaultFormatter(initialDuration),
         ),
-        isRunningNotifier = ValueNotifier<bool>(false);
+        isRunningNotifier = ValueNotifier<bool>(false) {
+    if (duration <= 0) {
+      throw EfficientCircularCountdownTimerException('duration must be > 0');
+    }
+    if (initialDuration < 0) {
+      throw EfficientCircularCountdownTimerException('initialDuration must be >= 0');
+    }
+    if (initialDuration > duration) {
+      throw EfficientCircularCountdownTimerException('initialDuration must be <= duration');
+    }
+  }
 
   static String _defaultFormatter(int seconds) {
     final m = (seconds ~/ 60).toString().padLeft(2, '0');

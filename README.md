@@ -87,7 +87,7 @@ controller.restart();
 See the [example](example/) directory for a full demo and advanced usage, including custom formatting and controller integration.
 
 ## Performance
-- Designed to update only once per second for minimal CPU usage (~3% on typical devices).
+- Designed to update only once per second for minimal CPU usage (~2% on typical devices).
 - Uses RepaintBoundary and paint/shader caching for efficient rendering.
 - **Efficient update strategy:** Instead of using a continuous animation, the timer only triggers a UI update when the timer value changes (typically once per second). This eliminates unnecessary repaints and keeps CPU usage extremely low, even for long-running timers.
 

@@ -5,9 +5,9 @@ description: >
 
 version: 0.0.1
 
-homepage: https://github.com/your-org/efficient_circular_countdown_timer
-repository: https://github.com/your-org/efficient_circular_countdown_timer
-issue_tracker: https://github.com/your-org/efficient_circular_countdown_timer/issues
+homepage: https://github.com/kinwahlai/efficient_circular_countdown_timer
+repository: https://github.com/kinwahlai/efficient_circular_countdown_timer
+issue_tracker: https://github.com/kinwahlai/efficient_circular_countdown_timer/issues
 
 environment:
   sdk: ^3.7.0

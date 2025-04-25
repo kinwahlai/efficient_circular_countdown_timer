@@ -171,10 +171,8 @@ class EfficientCircularCountdownTimer extends StatefulWidget {
   State<EfficientCircularCountdownTimer> createState() => _EfficientCircularCountdownTimerState();
 }
 
-class _EfficientCircularCountdownTimerState extends State<EfficientCircularCountdownTimer> with SingleTickerProviderStateMixin {
+class _EfficientCircularCountdownTimerState extends State<EfficientCircularCountdownTimer> {
   late EfficientCircularCountdownTimerLogic _timerLogic;
-  late AnimationController _animationController;
-  late Animation<double> _progressAnimation;
   CountdownController? _controller;
 
   @override
@@ -186,23 +184,10 @@ class _EfficientCircularCountdownTimerState extends State<EfficientCircularCount
       isReverse: widget.isReverse,
       timeFormatter: widget.timeFormatter,
     );
-    _animationController = AnimationController(
-      vsync: this,
-      duration: Duration(seconds: widget.duration),
-    );
-    _progressAnimation = Tween<double>(
-      begin: widget.isReverse ? 1.0 : 0.0,
-      end: widget.isReverse ? 0.0 : 1.0,
-    ).animate(_animationController);
-
     _controller = widget.controller ?? CountdownController();
     _bindController();
-
-    // Listen for timer value changes for onChange callback
     _timerLogic.timeNotifier.addListener(_handleTimeChange);
-    // Listen for timer completion for onComplete callback
     _timerLogic.isRunningNotifier.addListener(_handleRunningChange);
-
     if (widget.autoStart) {
       _startTimer();
     }
@@ -236,25 +221,14 @@ class _EfficientCircularCountdownTimerState extends State<EfficientCircularCount
   void _startTimer() {
     widget.onStart?.call();
     _timerLogic.start(timeFormatter: widget.timeFormatter);
-    if (widget.isReverseAnimation) {
-      _animationController.reverse(from: 1.0);
-    } else {
-      _animationController.forward(from: 0.0);
-    }
   }
 
   void _pauseTimer() {
     _timerLogic.pause();
-    _animationController.stop();
   }
 
   void _resumeTimer() {
     _timerLogic.resume();
-    if (widget.isReverseAnimation) {
-      _animationController.reverse();
-    } else {
-      _animationController.forward();
-    }
   }
 
   void _restartTimer() {
@@ -264,7 +238,6 @@ class _EfficientCircularCountdownTimerState extends State<EfficientCircularCount
 
   void _resetTimer() {
     _timerLogic.reset();
-    _animationController.reset();
   }
 
   @override
@@ -272,7 +245,6 @@ class _EfficientCircularCountdownTimerState extends State<EfficientCircularCount
     _timerLogic.timeNotifier.removeListener(_handleTimeChange);
     _timerLogic.isRunningNotifier.removeListener(_handleRunningChange);
     _timerLogic.dispose();
-    _animationController.dispose();
     super.dispose();
   }
 
@@ -281,37 +253,39 @@ class _EfficientCircularCountdownTimerState extends State<EfficientCircularCount
     return SizedBox(
       width: widget.width,
       height: widget.height,
-      child: AnimatedBuilder(
-        animation: _progressAnimation,
-        builder: (context, child) {
-          return CustomPaint(
-            painter: _CircularCountdownPainter(
-              progress: _progressAnimation.value,
-              fillColor: widget.fillColor,
-              ringColor: widget.ringColor,
-              backgroundColor: widget.backgroundColor,
-              fillGradient: widget.fillGradient,
-              ringGradient: widget.ringGradient,
-              backgroundGradient: widget.backgroundGradient,
-              strokeWidth: widget.strokeWidth,
-              strokeCap: widget.strokeCap,
-            ),
-            child: Center(
-              child: widget.isTimerTextShown
-                  ? ValueListenableBuilder<String>(
-                      valueListenable: _timerLogic.timeNotifier,
-                      builder: (context, value, _) {
-                        return Text(
-                          value,
-                          style: widget.textStyle,
-                          textAlign: widget.textAlign,
-                        );
-                      },
-                    )
-                  : const SizedBox.shrink(),
-            ),
-          );
-        },
+      child: RepaintBoundary(
+        child: ValueListenableBuilder<String>(
+          valueListenable: _timerLogic.timeNotifier,
+          builder: (context, value, _) {
+            // Calculate progress based on currentSeconds and duration
+            final seconds = _timerLogic.currentSeconds;
+            final progress = widget.isReverseAnimation
+                ? (widget.isReverse ? seconds / widget.duration : 1 - (seconds / widget.duration))
+                : (widget.isReverse ? 1 - (seconds / widget.duration) : seconds / widget.duration);
+            return CustomPaint(
+              painter: _CircularCountdownPainter(
+                progress: progress.clamp(0.0, 1.0),
+                fillColor: widget.fillColor,
+                ringColor: widget.ringColor,
+                backgroundColor: widget.backgroundColor,
+                fillGradient: widget.fillGradient,
+                ringGradient: widget.ringGradient,
+                backgroundGradient: widget.backgroundGradient,
+                strokeWidth: widget.strokeWidth,
+                strokeCap: widget.strokeCap,
+              ),
+              child: Center(
+                child: widget.isTimerTextShown
+                    ? Text(
+                        value,
+                        style: widget.textStyle,
+                        textAlign: widget.textAlign,
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -328,6 +302,15 @@ class _CircularCountdownPainter extends CustomPainter {
   final double strokeWidth;
   final StrokeCap strokeCap;
 
+  // Paint and Shader caches for performance
+  Paint? _backgroundPaint;
+  Paint? _ringPaint;
+  Paint? _fillPaint;
+  Size? _lastSize;
+  Gradient? _lastBackgroundGradient;
+  Gradient? _lastRingGradient;
+  Gradient? _lastFillGradient;
+
   _CircularCountdownPainter({
     required this.progress,
     this.fillColor,
@@ -340,57 +323,81 @@ class _CircularCountdownPainter extends CustomPainter {
     required this.strokeCap,
   });
 
+  void _updatePaints(Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = (size.width < size.height ? size.width : size.height) / 2 - strokeWidth / 2;
+    final rect = Rect.fromCircle(center: center, radius: radius);
+
+    // Background paint
+    if (_backgroundPaint == null || _lastSize != size || _lastBackgroundGradient != backgroundGradient) {
+      _backgroundPaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeWidth
+        ..strokeCap = strokeCap;
+      if (backgroundGradient != null) {
+        _backgroundPaint!.shader = backgroundGradient!.createShader(rect);
+      } else if (backgroundColor != null) {
+        _backgroundPaint!.color = backgroundColor!;
+      }
+      _lastBackgroundGradient = backgroundGradient;
+    }
+
+    // Ring paint
+    if (_ringPaint == null || _lastSize != size || _lastRingGradient != ringGradient) {
+      _ringPaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeWidth
+        ..strokeCap = strokeCap;
+      if (ringGradient != null) {
+        _ringPaint!.shader = ringGradient!.createShader(rect);
+      } else if (ringColor != null) {
+        _ringPaint!.color = ringColor!;
+      }
+      _lastRingGradient = ringGradient;
+    }
+
+    // Fill paint
+    if (_fillPaint == null || _lastSize != size || _lastFillGradient != fillGradient) {
+      _fillPaint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = strokeWidth
+        ..strokeCap = strokeCap;
+      if (fillGradient != null) {
+        _fillPaint!.shader = fillGradient!.createShader(rect);
+      } else if (fillColor != null) {
+        _fillPaint!.color = fillColor!;
+      }
+      _lastFillGradient = fillGradient;
+    }
+
+    _lastSize = size;
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
+    _updatePaints(size);
     final center = Offset(size.width / 2, size.height / 2);
     final radius = (size.width < size.height ? size.width : size.height) / 2 - strokeWidth / 2;
 
     // Draw background
     if (backgroundColor != null || backgroundGradient != null) {
-      final paint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeWidth
-        ..strokeCap = strokeCap;
-      if (backgroundGradient != null) {
-        paint.shader = backgroundGradient!.createShader(Rect.fromCircle(center: center, radius: radius));
-      } else {
-        paint.color = backgroundColor!;
-      }
-      canvas.drawCircle(center, radius, paint);
+      canvas.drawCircle(center, radius, _backgroundPaint!);
     }
 
     // Draw ring
     if (ringColor != null || ringGradient != null) {
-      final paint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeWidth
-        ..strokeCap = strokeCap;
-      if (ringGradient != null) {
-        paint.shader = ringGradient!.createShader(Rect.fromCircle(center: center, radius: radius));
-      } else {
-        paint.color = ringColor!;
-      }
-      canvas.drawCircle(center, radius, paint);
+      canvas.drawCircle(center, radius, _ringPaint!);
     }
 
     // Draw progress arc
     if (fillColor != null || fillGradient != null) {
-      final paint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeWidth
-        ..strokeCap = strokeCap;
-      if (fillGradient != null) {
-        paint.shader = fillGradient!.createShader(Rect.fromCircle(center: center, radius: radius));
-      } else {
-        paint.color = fillColor!;
-      }
       final sweepAngle = 2 * 3.141592653589793 * progress;
       canvas.drawArc(
         Rect.fromCircle(center: center, radius: radius),
         -3.141592653589793 / 2,
         sweepAngle,
         false,
-        paint,
+        _fillPaint!,
       );
     }
   }

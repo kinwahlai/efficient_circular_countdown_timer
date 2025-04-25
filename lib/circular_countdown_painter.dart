@@ -86,29 +86,47 @@ class CircularCountdownPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     _updatePaints(size);
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = (size.width < size.height ? size.width : size.height) / 2 - strokeWidth / 2;
+    Paint paint = Paint()
+      ..color = ringColor!
+      ..strokeWidth = strokeWidth!
+      ..strokeCap = strokeCap!
+      ..style = PaintingStyle.stroke;
 
-    // Draw background
+    if (ringGradient != null) {
+      final rect = Rect.fromCircle(
+          center: size.center(Offset.zero), radius: size.width / 2);
+      paint.shader = ringGradient!.createShader(rect);
+    } else {
+      paint.shader = null;
+    }
+
+    canvas.drawCircle(size.center(Offset.zero), size.width / 2, paint);
+    double lprogress = (progress * 2 * math.pi);
+    double startAngle = math.pi * 1.5;
+
+    if (fillGradient != null) {
+      final rect = Rect.fromCircle(
+          center: size.center(Offset.zero), radius: size.width / 2);
+      paint.shader = fillGradient!.createShader(rect);
+    } else {
+      paint.shader = null;
+      paint.color = fillColor!;
+    }
+
+    canvas.drawArc(Offset.zero & size, startAngle, lprogress, false, paint);
+
     if (backgroundColor != null || backgroundGradient != null) {
-      canvas.drawCircle(center, radius, _backgroundPaint!);
-    }
+      final backgroundPaint = Paint();
 
-    // Draw ring
-    if (ringColor != null || ringGradient != null) {
-      canvas.drawCircle(center, radius, _ringPaint!);
-    }
-
-    // Draw progress arc
-    if (fillColor != null || fillGradient != null) {
-      final sweepAngle = 2 * math.pi * progress;
-      canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
-        -math.pi / 2,
-        sweepAngle,
-        false,
-        _fillPaint!,
-      );
+      if (backgroundGradient != null) {
+        final rect = Rect.fromCircle(
+            center: size.center(Offset.zero), radius: size.width / 2.2);
+        backgroundPaint.shader = backgroundGradient!.createShader(rect);
+      } else {
+        backgroundPaint.color = backgroundColor!;
+      }
+      canvas.drawCircle(
+          size.center(Offset.zero), size.width / 2.2, backgroundPaint);
     }
   }
 

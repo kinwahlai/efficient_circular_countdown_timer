@@ -2,7 +2,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-/// Controller for programmatic control of the countdown timer.
+/// A controller for programmatic control of the countdown timer.
+///
+/// Use this to start, pause, resume, restart, or reset the timer from outside the widget.
 class CountdownController {
   VoidCallback? _start;
   VoidCallback? _pause;
@@ -22,6 +24,8 @@ class CountdownController {
 }
 
 /// Core timer logic for EfficientCircularCountdownTimer.
+///
+/// Handles the countdown/count-up, timer state, and notifies listeners of time and running state changes.
 class EfficientCircularCountdownTimerLogic {
   final int duration; // in seconds
   final int initialDuration; // in seconds
@@ -114,30 +118,60 @@ class EfficientCircularCountdownTimerLogic {
   bool get isRunning => isRunningNotifier.value;
 }
 
-/// EfficientCircularCountdownTimer widget (scaffold only, no UI yet)
+/// A highly efficient, customizable, and accessible circular countdown timer widget for Flutter.
+///
+/// Features:
+/// - Circular countdown and count-up modes
+/// - Customizable appearance (colors, gradients, stroke, text)
+/// - Controller for start, pause, resume, reset, and more
+/// - Callbacks for start, complete, and value changes
+/// - Optimized for performance and accessibility
 class EfficientCircularCountdownTimer extends StatefulWidget {
+  /// Total duration of the timer, in seconds.
   final int duration;
+  /// Initial value of the timer, in seconds.
   final int initialDuration;
+  /// If true, timer counts down; otherwise, counts up.
   final bool isReverse;
+  /// If true, timer starts automatically when built.
   final bool autoStart;
+  /// Width of the timer widget.
   final double width;
+  /// Height of the timer widget.
   final double height;
+  /// Color of the progress arc.
   final Color? fillColor;
+  /// Color of the background ring.
   final Color? ringColor;
+  /// Optional solid background color for the circle area.
   final Color? backgroundColor;
+  /// Gradient for the progress arc (overrides [fillColor]).
   final Gradient? fillGradient;
+  /// Gradient for the background ring (overrides [ringColor]).
   final Gradient? ringGradient;
+  /// Optional gradient for the circle area (overrides [backgroundColor]).
   final Gradient? backgroundGradient;
+  /// Thickness of the progress and background rings.
   final double strokeWidth;
+  /// Style of the start/end points of the progress arc.
   final StrokeCap strokeCap;
+  /// If true, the progress arc animates in reverse direction.
   final bool isReverseAnimation;
+  /// If true, displays the timer text in the center.
   final bool isTimerTextShown;
+  /// Text style for the timer text.
   final TextStyle? textStyle;
+  /// Text alignment for the timer text.
   final TextAlign? textAlign;
+  /// Custom formatter for the timer text.
   final String Function(int seconds)? timeFormatter;
+  /// Controller for programmatic control.
   final CountdownController? controller;
+  /// Callback when the timer starts.
   final VoidCallback? onStart;
+  /// Callback when the timer completes.
   final VoidCallback? onComplete;
+  /// Callback when the timer value changes.
   final ValueChanged<String>? onChange;
 
   const EfficientCircularCountdownTimer({
@@ -291,6 +325,9 @@ class _EfficientCircularCountdownTimerState extends State<EfficientCircularCount
   }
 }
 
+/// Custom painter for EfficientCircularCountdownTimer.
+///
+/// Draws the background, ring, and progress arc with support for gradients and stroke customization.
 class _CircularCountdownPainter extends CustomPainter {
   final double progress;
   final Color? fillColor;

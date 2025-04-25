@@ -1,6 +1,6 @@
 # Product Requirements Document: CPU-Efficient Circular Countdown Timer (Flutter)
 
-**Version:** 1.0
+**Version:** 0.0.1
 **Date:** 2025-04-25
 **Author:** Darren Lai
 

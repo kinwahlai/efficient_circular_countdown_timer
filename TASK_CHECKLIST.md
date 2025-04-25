@@ -4,8 +4,8 @@ This checklist is derived from the Product Requirements Document (PRD) and is in
 
 ## 1. Project Setup
 - [x] Initialize Flutter package structure (already done)
-- [ ] Set up analysis options and lint rules
-- [ ] Add initial README and CHANGELOG
+- [x] Set up analysis options and lint rules
+- [x] Add initial README and CHANGELOG
 
 ## 2. Core Functionality
 - [ ] Implement countdown from specified duration (FR1.1)

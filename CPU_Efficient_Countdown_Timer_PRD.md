@@ -134,3 +134,7 @@ The scope includes the design, development, testing, and documentation of the `E
 *   Full accessibility improvements (semantic labels, focus management).
 *   Finer-grained control over animation timing (e.g., custom tickers).
 *   Platform-specific optimizations if significant differences are observed.
+
+## References
+* [Flutter Documentation](https://flutter.dev/docs)
+* [Circular Countdown Timer Examples](https://pub.dev/packages/circular_countdown_timer/example)

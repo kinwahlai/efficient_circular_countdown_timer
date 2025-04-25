@@ -1,4 +1,5 @@
 import 'package:fake_async/fake_async.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:efficient_circular_countdown_timer/efficient_circular_countdown_timer.dart';
 
@@ -58,6 +59,37 @@ void main() {
         expect(logic.isRunning, false);
         logic.dispose();
       });
+    });
+  });
+
+  group('EfficientCircularCountdownTimer widget', () {
+    testWidgets('displays initial time and completes', (tester) async {
+      String? completed;
+      final controller = CountdownController();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: EfficientCircularCountdownTimer(
+            duration: 2,
+            controller: controller,
+            width: 100,
+            height: 100,
+            isTimerTextShown: true,
+            onComplete: () => completed = 'done',
+          ),
+        ),
+      );
+      // Should show initial time
+      expect(find.text('00:00'), findsOneWidget);
+      // Start the timer
+      controller.start();
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
+      expect(find.text('00:01'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
+      expect(find.text('00:02'), findsOneWidget);
+      // Timer should complete
+      expect(completed, 'done');
     });
   });
 }

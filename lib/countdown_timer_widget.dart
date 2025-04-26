@@ -60,7 +60,7 @@ class EfficientCircularCountdownTimer extends StatefulWidget {
   final ValueChanged<String>? onChange;
 
   const EfficientCircularCountdownTimer({
-    Key? key,
+    super.key,
     required this.duration,
     this.initialDuration = 0,
     this.isReverse = false,
@@ -84,7 +84,7 @@ class EfficientCircularCountdownTimer extends StatefulWidget {
     this.onStart,
     this.onComplete,
     this.onChange,
-  }) : super(key: key);
+  });
 
   @override
   State<EfficientCircularCountdownTimer> createState() => _EfficientCircularCountdownTimerState();

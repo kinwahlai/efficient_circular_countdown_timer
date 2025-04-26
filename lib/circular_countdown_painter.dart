@@ -88,8 +88,8 @@ class CircularCountdownPainter extends CustomPainter {
     _updatePaints(size);
     Paint paint = Paint()
       ..color = ringColor!
-      ..strokeWidth = strokeWidth!
-      ..strokeCap = strokeCap!
+      ..strokeWidth = strokeWidth
+      ..strokeCap = strokeCap
       ..style = PaintingStyle.stroke;
 
     if (ringGradient != null) {

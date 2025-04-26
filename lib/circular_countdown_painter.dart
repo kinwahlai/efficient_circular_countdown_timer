@@ -35,15 +35,20 @@ class CircularCountdownPainter extends CustomPainter {
 
   void _updatePaints(Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = (size.width < size.height ? size.width : size.height) / 2 - strokeWidth / 2;
+    final radius =
+        (size.width < size.height ? size.width : size.height) / 2 -
+        strokeWidth / 2;
     final rect = Rect.fromCircle(center: center, radius: radius);
 
     // Background paint
-    if (_backgroundPaint == null || _lastSize != size || _lastBackgroundGradient != backgroundGradient) {
-      _backgroundPaint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeWidth
-        ..strokeCap = strokeCap;
+    if (_backgroundPaint == null ||
+        _lastSize != size ||
+        _lastBackgroundGradient != backgroundGradient) {
+      _backgroundPaint =
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = strokeWidth
+            ..strokeCap = strokeCap;
       if (backgroundGradient != null) {
         _backgroundPaint!.shader = backgroundGradient!.createShader(rect);
       } else if (backgroundColor != null) {
@@ -53,11 +58,14 @@ class CircularCountdownPainter extends CustomPainter {
     }
 
     // Ring paint
-    if (_ringPaint == null || _lastSize != size || _lastRingGradient != ringGradient) {
-      _ringPaint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeWidth
-        ..strokeCap = strokeCap;
+    if (_ringPaint == null ||
+        _lastSize != size ||
+        _lastRingGradient != ringGradient) {
+      _ringPaint =
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = strokeWidth
+            ..strokeCap = strokeCap;
       if (ringGradient != null) {
         _ringPaint!.shader = ringGradient!.createShader(rect);
       } else if (ringColor != null) {
@@ -67,11 +75,14 @@ class CircularCountdownPainter extends CustomPainter {
     }
 
     // Fill paint
-    if (_fillPaint == null || _lastSize != size || _lastFillGradient != fillGradient) {
-      _fillPaint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = strokeWidth
-        ..strokeCap = strokeCap;
+    if (_fillPaint == null ||
+        _lastSize != size ||
+        _lastFillGradient != fillGradient) {
+      _fillPaint =
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = strokeWidth
+            ..strokeCap = strokeCap;
       if (fillGradient != null) {
         _fillPaint!.shader = fillGradient!.createShader(rect);
       } else if (fillColor != null) {
@@ -86,15 +97,18 @@ class CircularCountdownPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     _updatePaints(size);
-    Paint paint = Paint()
-      ..color = ringColor!
-      ..strokeWidth = strokeWidth
-      ..strokeCap = strokeCap
-      ..style = PaintingStyle.stroke;
+    Paint paint =
+        Paint()
+          ..color = ringColor!
+          ..strokeWidth = strokeWidth
+          ..strokeCap = strokeCap
+          ..style = PaintingStyle.stroke;
 
     if (ringGradient != null) {
       final rect = Rect.fromCircle(
-          center: size.center(Offset.zero), radius: size.width / 2);
+        center: size.center(Offset.zero),
+        radius: size.width / 2,
+      );
       paint.shader = ringGradient!.createShader(rect);
     } else {
       paint.shader = null;
@@ -106,7 +120,9 @@ class CircularCountdownPainter extends CustomPainter {
 
     if (fillGradient != null) {
       final rect = Rect.fromCircle(
-          center: size.center(Offset.zero), radius: size.width / 2);
+        center: size.center(Offset.zero),
+        radius: size.width / 2,
+      );
       paint.shader = fillGradient!.createShader(rect);
     } else {
       paint.shader = null;
@@ -120,13 +136,18 @@ class CircularCountdownPainter extends CustomPainter {
 
       if (backgroundGradient != null) {
         final rect = Rect.fromCircle(
-            center: size.center(Offset.zero), radius: size.width / 2.2);
+          center: size.center(Offset.zero),
+          radius: size.width / 2.2,
+        );
         backgroundPaint.shader = backgroundGradient!.createShader(rect);
       } else {
         backgroundPaint.color = backgroundColor!;
       }
       canvas.drawCircle(
-          size.center(Offset.zero), size.width / 2.2, backgroundPaint);
+        size.center(Offset.zero),
+        size.width / 2.2,
+        backgroundPaint,
+      );
     }
   }
 

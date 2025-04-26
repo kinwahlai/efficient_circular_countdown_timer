@@ -21,7 +21,11 @@ void main() {
 
     test('counts down from initialDuration to 0', () {
       fakeAsync((async) {
-        final logic = EfficientCircularCountdownTimerLogic(duration: 3, initialDuration: 3, isReverse: true);
+        final logic = EfficientCircularCountdownTimerLogic(
+          duration: 3,
+          initialDuration: 3,
+          isReverse: true,
+        );
         logic.start();
         expect(logic.currentSeconds, 3);
         async.elapse(const Duration(seconds: 1));
@@ -51,7 +55,10 @@ void main() {
 
     test('reset sets timer to newDuration and newInitialDuration', () {
       fakeAsync((async) {
-        final logic = EfficientCircularCountdownTimerLogic(duration: 5, initialDuration: 2);
+        final logic = EfficientCircularCountdownTimerLogic(
+          duration: 5,
+          initialDuration: 2,
+        );
         logic.start();
         async.elapse(const Duration(seconds: 2));
         // Simulate a reset with a new duration and initialDuration
@@ -63,44 +70,62 @@ void main() {
       });
     });
 
-    testWidgets('controller.reset sets new duration and initialDuration in widget', (tester) async {
-      final controller = CountdownController();
-      await tester.pumpWidget(
-        MaterialApp(
-          home: EfficientCircularCountdownTimer(
-            duration: 5,
-            initialDuration: 2,
-            controller: controller,
-            width: 100,
-            height: 100,
-            isTimerTextShown: true,
+    testWidgets(
+      'controller.reset sets new duration and initialDuration in widget',
+      (tester) async {
+        final controller = CountdownController();
+        await tester.pumpWidget(
+          MaterialApp(
+            home: EfficientCircularCountdownTimer(
+              duration: 5,
+              initialDuration: 2,
+              controller: controller,
+              width: 100,
+              height: 100,
+              isTimerTextShown: true,
+            ),
           ),
-        ),
-      );
-      controller.start();
-      await tester.pump(const Duration(seconds: 2));
-      await tester.pumpAndSettle();
-      // Now reset with new duration and initialDuration
-      controller.reset(newDuration: 8, newInitialDuration: 3);
-      await tester.pumpAndSettle();
-      expect(find.text('00:03'), findsOneWidget);
-      // Start and let it run to new duration
-      controller.start();
-      await tester.pump(const Duration(seconds: 5));
-      await tester.pumpAndSettle();
-      expect(find.text('00:08'), findsOneWidget);
-    });
+        );
+        controller.start();
+        await tester.pump(const Duration(seconds: 2));
+        await tester.pumpAndSettle();
+        // Now reset with new duration and initialDuration
+        controller.reset(newDuration: 8, newInitialDuration: 3);
+        await tester.pumpAndSettle();
+        expect(find.text('00:03'), findsOneWidget);
+        // Start and let it run to new duration
+        controller.start();
+        await tester.pump(const Duration(seconds: 5));
+        await tester.pumpAndSettle();
+        expect(find.text('00:08'), findsOneWidget);
+      },
+    );
   });
 
   group('Edge cases and error handling', () {
     test('throws exception for negative duration', () {
-      expect(() => EfficientCircularCountdownTimerLogic(duration: -1), throwsA(isA<EfficientCircularCountdownTimerException>()));
+      expect(
+        () => EfficientCircularCountdownTimerLogic(duration: -1),
+        throwsA(isA<EfficientCircularCountdownTimerException>()),
+      );
     });
     test('throws exception for initialDuration < 0', () {
-      expect(() => EfficientCircularCountdownTimerLogic(duration: 5, initialDuration: -1), throwsA(isA<EfficientCircularCountdownTimerException>()));
+      expect(
+        () => EfficientCircularCountdownTimerLogic(
+          duration: 5,
+          initialDuration: -1,
+        ),
+        throwsA(isA<EfficientCircularCountdownTimerException>()),
+      );
     });
     test('throws exception for initialDuration > duration', () {
-      expect(() => EfficientCircularCountdownTimerLogic(duration: 3, initialDuration: 4), throwsA(isA<EfficientCircularCountdownTimerException>()));
+      expect(
+        () => EfficientCircularCountdownTimerLogic(
+          duration: 3,
+          initialDuration: 4,
+        ),
+        throwsA(isA<EfficientCircularCountdownTimerException>()),
+      );
     });
     testWidgets('rapid controller actions do not crash', (tester) async {
       final controller = CountdownController();

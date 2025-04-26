@@ -1,9 +1,9 @@
 name: efficient_circular_countdown_timer
 
 description: >
-  A highly efficient, customizable, and accessible circular countdown timer widget for Flutter. Designed for minimal CPU/memory usage and maximum flexibility. Supports controller, callbacks, gradients, and more.
+  A highly efficient, customizable, and accessible circular countdown timer widget for Flutter. Designed for minimal CPU/memory usage.
 
-version: 0.0.1
+version: 0.0.2
 
 homepage: https://github.com/kinwahlai/efficient_circular_countdown_timer
 repository: https://github.com/kinwahlai/efficient_circular_countdown_timer

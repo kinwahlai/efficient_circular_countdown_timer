@@ -9,14 +9,15 @@ A highly efficient, customizable, and accessible circular countdown timer widget
 - Callbacks for start, complete, and value changes
 - Optimized for performance and accessibility (low CPU usage)
 
+## Demo
+<img src="demo.gif" width="600" alt="Demo">
+
 ## Getting Started
 Add this package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  efficient_circular_countdown_timer:
-    git:
-      url: <your-repo-url>
+  efficient_circular_countdown_timer: ^0.0.1
 ```
 
 Import and use in your widget tree:

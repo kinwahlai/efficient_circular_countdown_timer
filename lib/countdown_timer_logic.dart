@@ -18,22 +18,25 @@ class EfficientCircularCountdownTimerLogic {
     this.initialDuration = 0,
     this.isReverse = false,
     String Function(int seconds)? timeFormatter,
-  })  :
-        _currentSeconds = initialDuration,
-        timeNotifier = ValueNotifier<String>(
-          timeFormatter != null
-              ? timeFormatter(initialDuration)
-              : _defaultFormatter(initialDuration),
-        ),
-        isRunningNotifier = ValueNotifier<bool>(false) {
+  }) : _currentSeconds = initialDuration,
+       timeNotifier = ValueNotifier<String>(
+         timeFormatter != null
+             ? timeFormatter(initialDuration)
+             : _defaultFormatter(initialDuration),
+       ),
+       isRunningNotifier = ValueNotifier<bool>(false) {
     if (duration <= 0) {
       throw EfficientCircularCountdownTimerException('duration must be > 0');
     }
     if (initialDuration < 0) {
-      throw EfficientCircularCountdownTimerException('initialDuration must be >= 0');
+      throw EfficientCircularCountdownTimerException(
+        'initialDuration must be >= 0',
+      );
     }
     if (initialDuration > duration) {
-      throw EfficientCircularCountdownTimerException('initialDuration must be <= duration');
+      throw EfficientCircularCountdownTimerException(
+        'initialDuration must be <= duration',
+      );
     }
   }
 
@@ -58,9 +61,10 @@ class EfficientCircularCountdownTimerLogic {
           stop();
           return;
         }
-        timeNotifier.value = timeFormatter != null
-            ? timeFormatter(_currentSeconds)
-            : _defaultFormatter(_currentSeconds);
+        timeNotifier.value =
+            timeFormatter != null
+                ? timeFormatter(_currentSeconds)
+                : _defaultFormatter(_currentSeconds);
         if ((isReverse && _currentSeconds == 0) ||
             (!isReverse && _currentSeconds == duration)) {
           stop();
@@ -90,10 +94,14 @@ class EfficientCircularCountdownTimerLogic {
     }
     if (newInitialDuration != null) {
       if (newInitialDuration < 0) {
-        throw EfficientCircularCountdownTimerException('initialDuration must be >= 0');
+        throw EfficientCircularCountdownTimerException(
+          'initialDuration must be >= 0',
+        );
       }
       if (newInitialDuration > duration) {
-        throw EfficientCircularCountdownTimerException('initialDuration must be <= duration');
+        throw EfficientCircularCountdownTimerException(
+          'initialDuration must be <= duration',
+        );
       }
       _currentSeconds = newInitialDuration;
     } else {
